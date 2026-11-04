@@ -12,8 +12,8 @@ export default function App() {
   // Estados para formularios
   const [nuevoEmpleado, setNuevoEmpleado] = useState({ nombre: '', fecha_nacimiento: '', departamento_id: '1', salario_base: '' });
   const [nominaForm, setNominaForm] = useState({
-    empleado_id: '', periodo: '2026-10', tipo_pago: 'fin_de_mes', dias_laborados: 30,
-    horas_extras_cant: 0, horas_dobles_cant: 0, bono_produccion: 0, comisiones: 0, compras_tienda: 0, porcentaje_asociacion: 0
+    empleado_id: '', periodo: '2026-10', tipo_pago: 'fin_de_mes', dias_laborados: '',
+    horas_extras_cant: '', horas_dobles_cant: '', bono_produccion: '', comisiones: '', compras_tienda: '', porcentaje_asociacion: ''
   });
 
   // Estados para reportes
@@ -88,9 +88,13 @@ export default function App() {
 
   return (
     <div style={{ fontFamily: 'Arial, sans-serif', backgroundColor: '#f4f6f8', minHeight: '100vh', padding: '20px' }}>
-      <header style={{ backgroundColor: '#1e293b', color: 'white', padding: '20px', borderRadius: '8px', marginBottom: '20px' }}>
-        <h1 style={{ margin: 0 }}>Consulting, S.A. - Sistema de Nóminas</h1>
-        <p style={{ margin: '5px 0 0 0', opacity: 0.8 }}>Módulo de Gestión y Automatización de Salarios</p>
+      <header className="bg-blue-600 text-white p-6 rounded-lg shadow-md mb-6 text-center">
+        <h1 className="text-3xl font-bold">
+        Lady Consulting, S.A. - Sistema de Nóminas
+        </h1>
+        <p className="text-blue-100 text-sm mt-1">
+        Módulo de Gestión y Automatización de Salarios
+        </p>
       </header>
 
       {/* Navegación por Pestañas */}
@@ -159,27 +163,27 @@ export default function App() {
             </div>
             <div>
               <label>Horas Extras Normales (Cantidad):</label>
-              <input type="number" value={nominaForm.horas_extras_cant} onChange={e => setNominaForm({...nominaForm, horas_extras_cant: Number(e.target.value)})} style={inputStyle}/>
+              <input type="number" value={nominaForm.horas_extras_cant} onChange={e => setNominaForm({...nominaForm, horas_extras_cant: Number(e.target.value)})} onFocus={(e) => e.target.select()} style={inputStyle}/>
             </div>
             <div>
               <label>Horas Dobles (Cantidad):</label>
-              <input type="number" value={nominaForm.horas_dobles_cant} onChange={e => setNominaForm({...nominaForm, horas_dobles_cant: Number(e.target.value)})} style={inputStyle}/>
+              <input type="number" value={nominaForm.horas_dobles_cant} onChange={e => setNominaForm({...nominaForm, horas_dobles_cant: Number(e.target.value)})} onFocus={(e) => e.target.select()} style={inputStyle}/>
             </div>
             <div>
               <label>Bonificación por Producción (Q):</label>
-              <input type="number" step="0.01" value={nominaForm.bono_produccion} onChange={e => setNominaForm({...nominaForm, bono_produccion: Number(e.target.value)})} style={inputStyle}/>
+              <input type="number" value={nominaForm.bono_produccion} onChange={e => setNominaForm({...nominaForm, bono_produccion: Number(e.target.value)})} onFocus={(e) => e.target.select()} style={inputStyle}/>
             </div>
             <div>
               <label>Comisiones (Q):</label>
-              <input type="number" step="0.01" value={nominaForm.comisiones} onChange={e => setNominaForm({...nominaForm, comisiones: Number(e.target.value)})} style={inputStyle}/>
+              <input type="number" value={nominaForm.comisiones} onChange={e => setNominaForm({...nominaForm, comisiones: Number(e.target.value)})} onFocus={(e) => e.target.select()} style={inputStyle}/>
             </div>
             <div>
               <label>Compras en Tienda Solidarista (Q):</label>
-              <input type="number" step="0.01" value={nominaForm.compras_tienda} onChange={e => setNominaForm({...nominaForm, compras_tienda: Number(e.target.value)})} style={inputStyle}/>
+              <input type="number" value={nominaForm.compras_tienda} onChange={e => setNominaForm({...nominaForm, compras_tienda: Number(e.target.value)})} onFocus={(e) => e.target.select()} style={inputStyle}/>
             </div>
             <div>
               <label>Ahorro Asociación Solidarista (%):</label>
-              <input type="number" step="0.1" value={nominaForm.porcentaje_asociacion} onChange={e => setNominaForm({...nominaForm, porcentaje_asociacion: Number(e.target.value)})} style={inputStyle}/>
+              <input type="number" value={nominaForm.porcentaje_asociacion} onChange={e => setNominaForm({...nominaForm, porcentaje_asociacion: Number(e.target.value)})} onFocus={(e) => e.target.select()} style={inputStyle}/>
             </div>
             <div style={{ gridColumn: 'span 2' }}>
               <button type="submit" style={btnStyle}>Calcular y Registrar Nómina</button>
