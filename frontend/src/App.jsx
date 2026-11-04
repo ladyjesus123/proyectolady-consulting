@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Users, DollarSign, Calendar, FileText, BookOpen, Building2 } from 'lucide-react';
 
-const API_URL = 'http://localhost:3001/api';
+const API_URL = 'https://backend-lady-consulting.onrender.com';
 
 export default function App() {
   const [tab, setTab] = useState('empleados');
