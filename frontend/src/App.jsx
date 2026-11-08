@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Users, DollarSign, Calendar, FileText, BookOpen, Building2 } from 'lucide-react';
 
-const API_URL = 'https://backend-lady-consulting.onrender.com';
+const API_URL = 'https://backend-lady-consulting.onrender.com/api';
 
 export default function App() {
   const [tab, setTab] = useState('empleados');
@@ -32,9 +32,9 @@ export default function App() {
 const cargarDatos = async () => {
     try {
       // Se agregó '/api' antes de departamentos y empleados
-      const resDepts = await axios.get(`${API_URL}/api/departamentos`);
+      const resDepts = await axios.get(`${API_URL}/departamentos`);
       setDepartamentos(resDepts.data);
-      const resEmp = await axios.get(`${API_URL}/api/empleados`);
+      const resEmp = await axios.get(`${API_URL}/empleados`);
       setEmpleados(resEmp.data);
       if (resEmp.data.length > 0) {
         setNominaForm(prev => ({ ...prev, empleado_id: resEmp.data[0].id }));
