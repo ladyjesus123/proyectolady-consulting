@@ -29,11 +29,12 @@ export default function App() {
     cargarDatos();
   }, []);
 
-  const cargarDatos = async () => {
+const cargarDatos = async () => {
     try {
-      const resDepts = await axios.get(`${API_URL}/departamentos`);
+      // Se agregó '/api' antes de departamentos y empleados
+      const resDepts = await axios.get(`${API_URL}/api/departamentos`);
       setDepartamentos(resDepts.data);
-      const resEmp = await axios.get(`${API_URL}/empleados`);
+      const resEmp = await axios.get(`${API_URL}/api/empleados`);
       setEmpleados(resEmp.data);
       if (resEmp.data.length > 0) {
         setNominaForm(prev => ({ ...prev, empleado_id: resEmp.data[0].id }));
