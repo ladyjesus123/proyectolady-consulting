@@ -5,6 +5,11 @@ import { Users, DollarSign, Calendar, FileText, BookOpen, Building2 } from 'luci
 const API_URL = 'https://backend-lady-consulting.onrender.com/api';
 
 export default function App() {
+  // 1. Estados de Autenticación
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [loginForm, setLoginForm] = useState({ usuario: '', password: '' });
+
+  // 2. Estados de la Aplicación
   const [tab, setTab] = useState('empleados');
   const [departamentos, setDepartamentos] = useState([]);
   const [empleados, setEmpleados] = useState([]);
@@ -26,12 +31,13 @@ export default function App() {
   const [reporteLibro, setReporteLibro] = useState([]);
 
   useEffect(() => {
-    cargarDatos();
-  }, []);
+    if (isLoggedIn) {
+      cargarDatos();
+    }
+  }, [isLoggedIn]);
 
-const cargarDatos = async () => {
+  const cargarDatos = async () => {
     try {
-      // Se agregó '/api' antes de departamentos y empleados
       const resDepts = await axios.get(`${API_URL}/departamentos`);
       setDepartamentos(resDepts.data);
       const resEmp = await axios.get(`${API_URL}/empleados`);
@@ -44,12 +50,30 @@ const cargarDatos = async () => {
     }
   };
 
+  const handleLogin = (e) => {
+    e.preventDefault();
+    if (loginForm.usuario === 'admin' && loginForm.password === '1234') {
+      setIsLoggedIn(true);
+    } else {
+      alert('Usuario o contraseña incorrectos. (Prueba admin / 1234)');
+    }
+  };
+
   const guardarEmpleado = async (e) => {
     e.preventDefault();
-    await axios.post(`${API_URL}/empleados`, nuevoEmpleado);
-    alert('Empleado registrado exitosamente');
-    setNuevoEmpleado({ nombre: '', fecha_nacimiento: '', departamento_id: '1', salario_base: '' });
-    cargarDatos();
+    try {
+      await axios.post(`${API_URL}/empleados`, {
+        ...nuevoEmpleado,
+        departamento_id: Number(nuevoEmpleado.departamento_id),
+        salario_base: Number(nuevoEmpleado.salario_base)
+      });
+      alert('Empleado registrado exitosamente');
+      setNuevoEmpleado({ nombre: '', fecha_nacimiento: '', departamento_id: '1', salario_base: '' });
+      cargarDatos();
+    } catch (err) {
+      console.error(err);
+      alert('Error al guardar empleado: ' + (err.response?.data?.error || err.message));
+    }
   };
 
   const calcularNomina = async (e) => {
@@ -58,7 +82,7 @@ const cargarDatos = async () => {
       const res = await axios.post(`${API_URL}/nominas/calcular`, nominaForm);
       alert(`Nómina procesada con éxito. Líquido a recibir: Q${res.data.liquidoRecibir.toFixed(2)}`);
     } catch (err) {
-      alert('Error al procesar nómina: ' + err.response?.data?.error || err.message);
+      alert('Error al procesar nómina: ' + (err.response?.data?.error || err.message));
     }
   };
 
@@ -87,14 +111,55 @@ const cargarDatos = async () => {
     setReporteLibro(res.data);
   };
 
+  // Pantalla de Inicio de Sesión
+  if (!isLoggedIn) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: '#f4f6f8' }}>
+        <div style={{ backgroundColor: 'white', padding: '30px', borderRadius: '8px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)', width: '100%', maxWidth: '400px' }}>
+          <h2 style={{ textAlign: 'center', color: '#2563eb', marginBottom: '20px' }}>Lady Consulting, S.A.</h2>
+          <p style={{ textAlign: 'center', color: '#64748b', marginBottom: '20px', fontSize: '14px' }}>Ingrese al Sistema de Nóminas</p>
+          
+          <form onSubmit={handleLogin} style={{ display: 'grid', gap: '15px' }}>
+            <div>
+              <label style={{ display: 'block', marginBottom: '5px', fontSize: '14px' }}>Usuario:</label>
+              <input 
+                type="text" 
+                placeholder="Ej. admin" 
+                value={loginForm.usuario} 
+                onChange={e => setLoginForm({...loginForm, usuario: e.target.value})} 
+                style={inputStyle}
+                required
+              />
+            </div>
+            <div>
+              <label style={{ display: 'block', marginBottom: '5px', fontSize: '14px' }}>Contraseña:</label>
+              <input 
+                type="password" 
+                placeholder="Ej. 1234" 
+                value={loginForm.password} 
+                onChange={e => setLoginForm({...loginForm, password: e.target.value})} 
+                style={inputStyle}
+                required
+              />
+            </div>
+            <button type="submit" style={{ ...btnStyle, marginTop: '10px', width: '100%' }}>
+              Iniciar Sesión
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
+
+  // Interfaz Principal
   return (
     <div style={{ fontFamily: 'Arial, sans-serif', backgroundColor: '#f4f6f8', minHeight: '100vh', padding: '20px' }}>
       <header className="bg-blue-600 text-white p-6 rounded-lg shadow-md mb-6 text-center">
         <h1 className="text-3xl font-bold">
-        Lady Consulting, S.A. - Sistema de Nóminas
+          Lady Consulting, S.A. - Sistema de Nóminas
         </h1>
         <p className="text-blue-100 text-sm mt-1">
-        Módulo de Gestión y Automatización de Salarios
+          Módulo de Gestión y Automatización de Salarios
         </p>
       </header>
 
@@ -132,7 +197,7 @@ const cargarDatos = async () => {
             <tbody>
               {empleados.map(e => (
                 <tr key={e.id}>
-                  <td style={thTdStyle}>{e.id}</td><td style={thTdStyle}>{e.nombre}</td><td style={thTdStyle}>{e.departamento}</td><td style={thTdStyle}>Q{e.salario_base.toFixed(2)}</td>
+                  <td style={thTdStyle}>{e.id}</td><td style={thTdStyle}>{e.nombre}</td><td style={thTdStyle}>{e.departamento}</td><td style={thTdStyle}>Q{e.salario_base?.toFixed(2)}</td>
                 </tr>
               ))}
             </tbody>
@@ -231,13 +296,13 @@ const cargarDatos = async () => {
           <h3>Listado Descuentos IGSS (4.83%)</h3>
           <table style={tableStyle}>
             <thead><tr style={{ backgroundColor: '#e2e8f0' }}><th style={thTdStyle}>Empleado</th><th style={thTdStyle}>Sueldo Base</th><th style={thTdStyle}>Descuento IGSS</th></tr></thead>
-            <tbody>{reporteIgss.map((r, i) => <tr key={i}><td style={thTdStyle}>{r.nombre}</td><td style={thTdStyle}>Q{r.salario_base.toFixed(2)}</td><td style={thTdStyle}>Q{r.igss.toFixed(2)}</td></tr>)}</tbody>
+            <tbody>{reporteIgss.map((r, i) => <tr key={i}><td style={thTdStyle}>{r.nombre}</td><td style={thTdStyle}>Q{r.salario_base?.toFixed(2)}</td><td style={thTdStyle}>Q{r.igss?.toFixed(2)}</td></tr>)}</tbody>
           </table>
 
           <h3 style={{ marginTop: '20px' }}>Listado Descuentos ISR</h3>
           <table style={tableStyle}>
             <thead><tr style={{ backgroundColor: '#e2e8f0' }}><th style={thTdStyle}>Empleado</th><th style={thTdStyle}>Sueldo Base</th><th style={thTdStyle}>Descuento ISR</th></tr></thead>
-            <tbody>{reporteIsr.map((r, i) => <tr key={i}><td style={thTdStyle}>{r.nombre}</td><td style={thTdStyle}>Q{r.salario_base.toFixed(2)}</td><td style={thTdStyle}>Q{r.isr.toFixed(2)}</td></tr>)}</tbody>
+            <tbody>{reporteIsr.map((r, i) => <tr key={i}><td style={thTdStyle}>{r.nombre}</td><td style={thTdStyle}>Q{r.salario_base?.toFixed(2)}</td><td style={thTdStyle}>Q{r.isr?.toFixed(2)}</td></tr>)}</tbody>
           </table>
         </div>
       )}
@@ -260,8 +325,8 @@ const cargarDatos = async () => {
               {reportePoliza.map((p, i) => (
                 <tr key={i}>
                   <td style={thTdStyle}>{p.cuenta_contable}</td><td style={thTdStyle}>{p.departamento}</td>
-                  <td style={thTdStyle}>Q{p.total_sueldos_ingresos.toFixed(2)}</td><td style={thTdStyle}>Q{p.total_descuentos.toFixed(2)}</td>
-                  <td style={thTdStyle}>Q{p.total_pagar.toFixed(2)}</td>
+                  <td style={thTdStyle}>Q{p.total_sueldos_ingresos?.toFixed(2)}</td><td style={thTdStyle}>Q{p.total_descuentos?.toFixed(2)}</td>
+                  <td style={thTdStyle}>Q{p.total_pagar?.toFixed(2)}</td>
                 </tr>
               ))}
             </tbody>
@@ -287,9 +352,9 @@ const cargarDatos = async () => {
             <tbody>
               {reporteLibro.map((l, i) => (
                 <tr key={i}>
-                  <td style={thTdStyle}>{l.departamento}</td><td style={thTdStyle}>{l.empleado}</td><td style={thTdStyle}>Q{l.salario_base.toFixed(2)}</td>
-                  <td style={thTdStyle}>{l.dias_laborados}</td><td style={thTdStyle}>Q{l.total_ingresos.toFixed(2)}</td><td style={thTdStyle}>Q{l.total_egresos.toFixed(2)}</td>
-                  <td style={thTdStyle}>Q{l.liquido_recibir.toFixed(2)}</td>
+                  <td style={thTdStyle}>{l.departamento}</td><td style={thTdStyle}>{l.empleado}</td><td style={thTdStyle}>Q{l.salario_base?.toFixed(2)}</td>
+                  <td style={thTdStyle}>{l.dias_laborados}</td><td style={thTdStyle}>Q{l.total_ingresos?.toFixed(2)}</td><td style={thTdStyle}>Q{l.total_egresos?.toFixed(2)}</td>
+                  <td style={thTdStyle}>Q{l.liquido_recibir?.toFixed(2)}</td>
                 </tr>
               ))}
             </tbody>
