@@ -83,7 +83,7 @@ const cargarDatos = async () => {
   };
 
   const cargarLibro = async () => {
-    const res = await axios.get(`${API_URL}/reportes/libro-salarios/${periodoReporte}`);
+    const res = await axios.get(`${API_URL}/reportes/libros-salarios/${periodoReporte}`);
     setReporteLibro(res.data);
   };
 
